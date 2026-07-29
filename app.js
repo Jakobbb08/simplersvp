@@ -16,7 +16,6 @@ const wpmRange = document.getElementById('wpmRange');
 const wpmInput = document.getElementById('wpmInput');
 const textInput = document.getElementById('textInput');
 const fileInput = document.getElementById('fileInput');
-const loadTextButton = document.getElementById('loadText');
 const dropZone = document.getElementById('dropZone');
 let textInputTimerId = null;
 
@@ -144,10 +143,6 @@ display.addEventListener('keydown', (event) => {
     event.preventDefault();
     togglePlayback();
   }
-});
-
-loadTextButton.addEventListener('click', () => {
-  loadText(textInput.value);
 });
 
 textInput.addEventListener('input', () => {
