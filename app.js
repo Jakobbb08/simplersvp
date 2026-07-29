@@ -10,6 +10,7 @@ const state = {
 
 const display = document.getElementById('display');
 const status = document.getElementById('status');
+const progressBar = document.getElementById('progressBar');
 const wpmRange = document.getElementById('wpmRange');
 const wpmInput = document.getElementById('wpmInput');
 const playPause = document.getElementById('playPause');
@@ -39,11 +40,12 @@ const wordsFromText = (text) =>
 
 const updateStatus = () => {
   status.textContent = `${state.index} / ${state.words.length}`;
+  const progress = state.words.length ? (state.index / state.words.length) * 100 : 0;
+  progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
 };
 
 const updateDisplay = () => {
   display.textContent = state.words[state.index] || 'Fertig';
-  updateStatus();
 };
 
 const clearTimer = () => {
@@ -65,11 +67,13 @@ const tick = () => {
   if (state.index >= state.words.length) {
     stop();
     updateDisplay();
+    updateStatus();
     return;
   }
 
   updateDisplay();
   state.index += 1;
+  updateStatus();
 
   const delay = Math.round(60000 / state.wpm);
   state.timerId = setTimeout(tick, delay);
@@ -95,6 +99,8 @@ const loadText = (rawText) => {
   state.index = 0;
   stop();
   updateDisplay();
+  updateStatus();
+  updateStatus();
 
   if (normalized.length) {
     localStorage.setItem(STORAGE_KEY, rawText);
@@ -169,6 +175,7 @@ if (savedText) {
   loadText(savedText);
 } else {
   updateDisplay();
+  updateStatus();
 }
 
 if ('serviceWorker' in navigator) {
