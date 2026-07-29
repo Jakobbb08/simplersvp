@@ -91,6 +91,7 @@ input[type='range'] {
   font-weight: 700;
   letter-spacing: 0.02em;
   min-height: 32vh;
+  cursor: pointer;
 }
 
 .status {
@@ -146,9 +147,5 @@ textarea {
 @media (max-width: 640px) {
   .app {
     padding: 0.75rem;
-  }
-
-  .control-row.buttons button {
-    flex: 1;
   }
 }

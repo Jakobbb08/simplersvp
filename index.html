@@ -17,13 +17,9 @@
           <input id="wpmRange" type="range" min="200" max="1000" step="10" value="350" />
           <input id="wpmInput" type="number" min="200" max="1000" step="10" value="350" />
         </div>
-        <div class="control-row buttons">
-          <button id="playPause" type="button">Play</button>
-          <button id="reset" type="button">Reset</button>
-        </div>
       </header>
 
-      <section id="display" class="display" aria-live="polite">Bereit</section>
+      <section id="display" class="display" aria-live="polite" tabindex="0">Bereit</section>
       <p id="status" class="status">0 / 0</p>
       <div class="progress" aria-hidden="true">
         <div id="progressBar" class="progress-bar"></div>

@@ -13,8 +13,6 @@ const status = document.getElementById('status');
 const progressBar = document.getElementById('progressBar');
 const wpmRange = document.getElementById('wpmRange');
 const wpmInput = document.getElementById('wpmInput');
-const playPause = document.getElementById('playPause');
-const resetButton = document.getElementById('reset');
 const textInput = document.getElementById('textInput');
 const fileInput = document.getElementById('fileInput');
 const loadTextButton = document.getElementById('loadText');
@@ -57,7 +55,6 @@ const clearTimer = () => {
 
 const stop = () => {
   state.playing = false;
-  playPause.textContent = 'Play';
   clearTimer();
 };
 
@@ -82,9 +79,16 @@ const tick = () => {
 const play = () => {
   if (!state.words.length) return;
   state.playing = true;
-  playPause.textContent = 'Pause';
   clearTimer();
   tick();
+};
+
+const togglePlayback = () => {
+  if (state.playing) {
+    stop();
+    return;
+  }
+  play();
 };
 
 const applyWpm = (value) => {
@@ -119,18 +123,12 @@ const readFile = async (file) => {
 wpmRange.addEventListener('input', (event) => applyWpm(event.target.value));
 wpmInput.addEventListener('change', (event) => applyWpm(event.target.value));
 
-playPause.addEventListener('click', () => {
-  if (state.playing) {
-    stop();
-    return;
+display.addEventListener('click', togglePlayback);
+display.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    togglePlayback();
   }
-  play();
-});
-
-resetButton.addEventListener('click', () => {
-  state.index = 0;
-  stop();
-  updateDisplay();
 });
 
 loadTextButton.addEventListener('click', () => {
