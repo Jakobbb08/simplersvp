@@ -9,14 +9,15 @@ const state = {
 };
 
 const display = document.getElementById('display');
-const status = document.getElementById('status');
+const statusCurrent = document.getElementById('statusCurrent');
+const statusTotal = document.getElementById('statusTotal');
 const progressBar = document.getElementById('progressBar');
 const wpmRange = document.getElementById('wpmRange');
 const wpmInput = document.getElementById('wpmInput');
 const textInput = document.getElementById('textInput');
 const fileInput = document.getElementById('fileInput');
-const loadTextButton = document.getElementById('loadText');
 const dropZone = document.getElementById('dropZone');
+let textInputTimerId = null;
 
 const clampWpm = (value) => Math.min(1000, Math.max(200, Number(value) || 350));
 
@@ -37,7 +38,8 @@ const wordsFromText = (text) =>
     .filter(Boolean);
 
 const updateStatus = () => {
-  status.textContent = `${state.index} / ${state.words.length}`;
+  statusCurrent.textContent = String(state.index);
+  statusTotal.textContent = String(state.words.length);
   const progress = state.words.length ? (state.index / state.words.length) * 100 : 0;
   progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
 };
@@ -104,10 +106,22 @@ const loadText = (rawText) => {
   stop();
   updateDisplay();
   updateStatus();
-  updateStatus();
 
   if (normalized.length) {
     localStorage.setItem(STORAGE_KEY, rawText);
+  }
+};
+
+const jumpToProgressIndex = (targetReadWords) => {
+  if (!state.words.length) return;
+  const clamped = Math.min(state.words.length, Math.max(0, targetReadWords));
+  const wasPlaying = state.playing;
+  stop();
+  state.index = clamped;
+  updateDisplay();
+  updateStatus();
+  if (wasPlaying && state.index < state.words.length) {
+    play();
   }
 };
 
@@ -131,10 +145,14 @@ display.addEventListener('keydown', (event) => {
   }
 });
 
-loadTextButton.addEventListener('click', () => {
-  if (textInput.value.trim()) {
-    loadText(textInput.value);
+textInput.addEventListener('input', () => {
+  if (textInputTimerId) {
+    clearTimeout(textInputTimerId);
   }
+  textInputTimerId = setTimeout(() => {
+    loadText(textInput.value);
+    textInputTimerId = null;
+  }, 200);
 });
 
 fileInput.addEventListener('change', (event) => {
@@ -164,6 +182,18 @@ dropZone.addEventListener('keydown', (event) => {
   if (event.key === 'Enter' || event.key === ' ') {
     fileInput.click();
   }
+});
+
+statusCurrent.addEventListener('click', () => {
+  if (!state.words.length) return;
+  const value = window.prompt(
+    `Zu welcher gelesenen Stelle springen? (0-${state.words.length})`,
+    String(state.index)
+  );
+  if (value === null) return;
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed)) return;
+  jumpToProgressIndex(parsed);
 });
 
 applyWpm(state.wpm);

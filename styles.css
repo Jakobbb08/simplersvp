@@ -17,6 +17,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  overflow-x: hidden;
 }
 
 .app {
@@ -98,6 +99,20 @@ input[type='range'] {
   margin: 0;
   color: var(--muted);
   text-align: center;
+}
+
+.status-current {
+  background: none;
+  border: 0;
+  color: var(--accent);
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.status-current:hover,
+.status-current:focus-visible {
+  text-decoration: underline;
 }
 
 .progress {
