@@ -18,7 +18,7 @@ Dann im Browser öffnen:
 
 - Ein-Wort-RSVP-Anzeige im Zentrum
 - Einstellbare Geschwindigkeit (200–1000 WPM)
-- Play/Pause und Reset
+- Start/Stop per Tap auf die Wortanzeige
 - Text laden via:
   - Direkt-Eingabe (Textarea)
   - `.txt`/`.md` Datei-Auswahl
