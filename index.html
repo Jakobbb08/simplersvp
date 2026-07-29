@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f1115" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <title>SimpleRSVP</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="controls">
+        <h1>SimpleRSVP</h1>
+        <div class="control-row">
+          <label for="wpmRange">WPM</label>
+          <input id="wpmRange" type="range" min="200" max="1000" step="10" value="350" />
+          <input id="wpmInput" type="number" min="200" max="1000" step="10" value="350" />
+        </div>
+        <div class="control-row buttons">
+          <button id="playPause" type="button">Play</button>
+          <button id="reset" type="button">Reset</button>
+        </div>
+      </header>
+
+      <section id="display" class="display" aria-live="polite">Bereit</section>
+      <p id="status" class="status">0 / 0</p>
+
+      <section class="input-panel">
+        <label for="textInput">Text eingeben</label>
+        <textarea id="textInput" rows="6" placeholder="Text hier einfügen..."></textarea>
+
+        <div class="file-row">
+          <input id="fileInput" type="file" accept=".txt,.md,text/plain,text/markdown" />
+          <button id="loadText" type="button">Text laden</button>
+        </div>
+
+        <div id="dropZone" class="drop-zone" tabindex="0">
+          .txt/.md hierher ziehen
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,139 @@
+:root {
+  color-scheme: dark;
+  --bg: #0f1115;
+  --panel: #171b22;
+  --border: #2b3240;
+  --text: #f2f5fa;
+  --muted: #b0bbcf;
+  --accent: #4da3ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+.app {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  gap: 1rem;
+  padding: 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.controls,
+.input-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+h1 {
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+}
+
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.control-row + .control-row {
+  margin-top: 0.75rem;
+}
+
+input[type='number'],
+textarea,
+button,
+input[type='file'] {
+  background: #11151d;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:hover,
+button:focus-visible {
+  border-color: var(--accent);
+}
+
+input[type='range'] {
+  flex: 1;
+  min-width: 180px;
+}
+
+#wpmInput {
+  width: 90px;
+}
+
+.display {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  min-height: 32vh;
+}
+
+.status {
+  margin: 0;
+  color: var(--muted);
+  text-align: center;
+}
+
+.input-panel {
+  display: grid;
+  gap: 0.75rem;
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.file-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+.drop-zone.active {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+@media (max-width: 640px) {
+  .app {
+    padding: 0.75rem;
+  }
+
+  .control-row.buttons button {
+    flex: 1;
+  }
+}
