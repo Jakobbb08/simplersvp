@@ -20,7 +20,12 @@
       </header>
 
       <section id="display" class="display" aria-live="polite" tabindex="0">Bereit</section>
-      <p id="status" class="status">0 / 0</p>
+      <p class="status">
+        <button id="statusCurrent" class="status-current" type="button" aria-label="Zu Position springen">
+          0
+        </button>
+        / <span id="statusTotal">0</span>
+      </p>
       <div class="progress" aria-hidden="true">
         <div id="progressBar" class="progress-bar"></div>
       </div>

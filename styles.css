@@ -101,6 +101,20 @@ input[type='range'] {
   text-align: center;
 }
 
+.status-current {
+  background: none;
+  border: 0;
+  color: var(--accent);
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.status-current:hover,
+.status-current:focus-visible {
+  text-decoration: underline;
+}
+
 .progress {
   height: 6px;
   background: var(--panel);
