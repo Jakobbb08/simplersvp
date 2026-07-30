@@ -18,10 +18,11 @@ Dann im Browser öffnen:
 
 - Ein-Wort-RSVP-Anzeige im Zentrum
 - Einstellbare Geschwindigkeit (200–1000 WPM)
-- Start/Stop per Tap auf die Wortanzeige
+- Start/Stop per Tap auf die Wortanzeige oder Leertaste
 - Text laden via:
   - Direkt-Eingabe (Textarea)
   - `.txt`/`.md` Datei-Auswahl
   - Drag & Drop von `.txt`/`.md`
+- Letzten Text und Lesefortschritt nach Reload wiederherstellen
 - Offline-Fähigkeit via Service Worker
 - Responsive Dark-Mode UI
