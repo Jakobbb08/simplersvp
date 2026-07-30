@@ -212,8 +212,8 @@ statusCurrent.addEventListener('click', () => {
 
 applyWpm(state.wpm);
 const savedText = localStorage.getItem(STORAGE_TEXT_KEY) || '';
-const savedProgress = Number.parseInt(localStorage.getItem(STORAGE_PROGRESS_KEY) || '0', 10);
 if (savedText) {
+  const savedProgress = Number.parseInt(localStorage.getItem(STORAGE_PROGRESS_KEY) || '0', 10);
   textInput.value = savedText;
   loadText(savedText);
   if (Number.isFinite(savedProgress) && savedProgress > 0) {
