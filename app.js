@@ -1,4 +1,5 @@
-const STORAGE_KEY = 'simplersvp:lastText';
+const STORAGE_TEXT_KEY = 'simplersvp:lastText';
+const STORAGE_PROGRESS_KEY = 'simplersvp:lastProgress';
 
 const state = {
   words: [],
@@ -42,6 +43,7 @@ const updateStatus = () => {
   statusTotal.textContent = String(state.words.length);
   const progress = state.words.length ? (state.index / state.words.length) * 100 : 0;
   progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+  localStorage.setItem(STORAGE_PROGRESS_KEY, String(state.index));
 };
 
 const updateDisplay = () => {
@@ -108,7 +110,7 @@ const loadText = (rawText) => {
   updateStatus();
 
   if (normalized.length) {
-    localStorage.setItem(STORAGE_KEY, rawText);
+    localStorage.setItem(STORAGE_TEXT_KEY, rawText);
   }
 };
 
@@ -139,10 +141,22 @@ wpmInput.addEventListener('change', (event) => applyWpm(event.target.value));
 
 display.addEventListener('click', togglePlayback);
 display.addEventListener('keydown', (event) => {
-  if (event.key === 'Enter' || event.key === ' ') {
+  if (event.key === 'Enter') {
     event.preventDefault();
     togglePlayback();
   }
+});
+
+const isInteractiveInput = (target) =>
+  target instanceof Element &&
+  target.closest('input, textarea, select, button, a, [contenteditable="true"], #dropZone');
+
+document.addEventListener('keydown', (event) => {
+  if (event.defaultPrevented) return;
+  if (event.key !== ' ') return;
+  if (isInteractiveInput(event.target)) return;
+  event.preventDefault();
+  togglePlayback();
 });
 
 textInput.addEventListener('input', () => {
@@ -197,10 +211,14 @@ statusCurrent.addEventListener('click', () => {
 });
 
 applyWpm(state.wpm);
-const savedText = localStorage.getItem(STORAGE_KEY) || '';
+const savedText = localStorage.getItem(STORAGE_TEXT_KEY) || '';
 if (savedText) {
   textInput.value = savedText;
   loadText(savedText);
+  const savedProgress = Number.parseInt(localStorage.getItem(STORAGE_PROGRESS_KEY) || '0', 10);
+  if (Number.isFinite(savedProgress) && savedProgress > 0) {
+    jumpToProgressIndex(savedProgress);
+  }
 } else {
   updateDisplay();
   updateStatus();
