@@ -176,6 +176,7 @@ input[type='range'] {
 textarea {
   width: 100%;
   resize: vertical;
+  line-height: 1.5;
 }
 
 .file-row {
