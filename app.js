@@ -82,14 +82,19 @@ const ensureTextareaScrollMeasure = () => {
 const getWordTopOffsetInTextarea = (charOffset) => {
   const { mirror, marker } = ensureTextareaScrollMeasure();
   const computed = getComputedStyle(textInput);
+  const paddingTop = Number.parseFloat(computed.paddingTop) || 0;
+  const paddingRight = Number.parseFloat(computed.paddingRight) || 0;
+  const paddingBottom = Number.parseFloat(computed.paddingBottom) || 0;
+  const paddingLeft = Number.parseFloat(computed.paddingLeft) || 0;
+  const contentWidth = Math.max(0, textInput.clientWidth - paddingLeft - paddingRight);
 
-  mirror.style.width = `${textInput.clientWidth}px`;
+  mirror.style.width = `${contentWidth}px`;
   mirror.style.font = computed.font;
   mirror.style.lineHeight = computed.lineHeight;
   mirror.style.letterSpacing = computed.letterSpacing;
-  mirror.style.padding = computed.padding;
-  mirror.style.border = computed.border;
-  mirror.style.boxSizing = computed.boxSizing;
+  mirror.style.padding = `${paddingTop}px ${paddingRight}px ${paddingBottom}px ${paddingLeft}px`;
+  mirror.style.border = '0';
+  mirror.style.boxSizing = 'content-box';
   mirror.style.tabSize = computed.tabSize;
 
   const safeOffset = Math.max(0, Math.min(charOffset, state.sourceText.length));
@@ -100,11 +105,11 @@ const getWordTopOffsetInTextarea = (charOffset) => {
   return marker.offsetTop;
 };
 
-const syncTextInputToCurrentWord = () => {
+const syncTextInputToCurrentWord = (wordIndex = state.index) => {
   if (!state.words.length) return;
   if (document.activeElement === textInput && !state.playing) return;
 
-  const activeWordIndex = Math.min(state.index, state.words.length - 1);
+  const activeWordIndex = Math.min(Math.max(0, wordIndex), state.words.length - 1);
   const start = state.wordOffsets[activeWordIndex];
   const word = state.words[activeWordIndex];
   if (typeof start !== 'number' || !word) return;
@@ -116,10 +121,11 @@ const syncTextInputToCurrentWord = () => {
 
   const markerTop = getWordTopOffsetInTextarea(start);
   const targetTop = Math.max(0, markerTop - textInput.clientHeight / 2 + lineHeight / 2);
+  const shouldUseSmooth = state.playing && 60000 / state.wpm >= 220;
 
   textInput.scrollTo({
     top: targetTop,
-    behavior: state.playing ? 'smooth' : 'auto',
+    behavior: shouldUseSmooth ? 'smooth' : 'auto',
   });
 };
 
@@ -145,8 +151,9 @@ const tick = () => {
     return;
   }
 
+  const currentWordIndex = state.index;
   updateDisplay();
-  syncTextInputToCurrentWord();
+  syncTextInputToCurrentWord(currentWordIndex);
   state.index += 1;
   updateStatus();
 
