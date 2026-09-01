@@ -67,7 +67,12 @@ const syncTextInputToCurrentWord = () => {
   const end = start + word.length;
   textInput.setSelectionRange(start, end);
 
-  const lineHeight = Number.parseFloat(getComputedStyle(textInput).lineHeight);
+  const computedLineHeight = Number.parseFloat(getComputedStyle(textInput).lineHeight);
+  const fallbackLineHeight = textInput.scrollHeight / Math.max(1, state.sourceText.split('\n').length);
+  const lineHeight =
+    Number.isFinite(computedLineHeight) && computedLineHeight > 0
+      ? computedLineHeight
+      : fallbackLineHeight;
   if (!Number.isFinite(lineHeight) || lineHeight <= 0) return;
   const lineNumber = (state.sourceText.slice(0, start).match(/\n/g) || []).length;
   const targetTop = Math.max(0, (lineNumber - 1) * lineHeight);
