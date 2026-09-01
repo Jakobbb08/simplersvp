@@ -21,6 +21,7 @@ const textInput = document.getElementById('textInput');
 const fileInput = document.getElementById('fileInput');
 const dropZone = document.getElementById('dropZone');
 let textInputTimerId = null;
+let textareaScrollMeasure = null;
 
 const clampWpm = (value) => Math.min(1000, Math.max(200, Number(value) || 350));
 
@@ -55,28 +56,77 @@ const updateDisplay = () => {
   display.textContent = state.words[state.index] || 'Fertig';
 };
 
-const syncTextInputToCurrentWord = () => {
+const ensureTextareaScrollMeasure = () => {
+  if (textareaScrollMeasure) return textareaScrollMeasure;
+
+  const mirror = document.createElement('div');
+  const marker = document.createElement('span');
+  marker.textContent = '\u200b';
+
+  mirror.style.position = 'absolute';
+  mirror.style.left = '-9999px';
+  mirror.style.top = '0';
+  mirror.style.visibility = 'hidden';
+  mirror.style.pointerEvents = 'none';
+  mirror.style.whiteSpace = 'pre-wrap';
+  mirror.style.overflowWrap = 'break-word';
+  mirror.style.wordBreak = 'break-word';
+
+  document.body.appendChild(mirror);
+  mirror.appendChild(marker);
+
+  textareaScrollMeasure = { mirror, marker };
+  return textareaScrollMeasure;
+};
+
+const getWordTopOffsetInTextarea = (charOffset) => {
+  const { mirror, marker } = ensureTextareaScrollMeasure();
+  const computed = getComputedStyle(textInput);
+  const paddingTop = Number.parseFloat(computed.paddingTop) || 0;
+  const paddingRight = Number.parseFloat(computed.paddingRight) || 0;
+  const paddingBottom = Number.parseFloat(computed.paddingBottom) || 0;
+  const paddingLeft = Number.parseFloat(computed.paddingLeft) || 0;
+  const contentWidth = Math.max(0, textInput.clientWidth - paddingLeft - paddingRight);
+
+  mirror.style.width = `${contentWidth}px`;
+  mirror.style.font = computed.font;
+  mirror.style.lineHeight = computed.lineHeight;
+  mirror.style.letterSpacing = computed.letterSpacing;
+  mirror.style.padding = `${paddingTop}px ${paddingRight}px ${paddingBottom}px ${paddingLeft}px`;
+  mirror.style.border = '0';
+  mirror.style.boxSizing = 'content-box';
+  mirror.style.tabSize = computed.tabSize;
+
+  const safeOffset = Math.max(0, Math.min(charOffset, state.sourceText.length));
+  const prefix = state.sourceText.slice(0, safeOffset);
+  mirror.textContent = prefix;
+  mirror.appendChild(marker);
+
+  return marker.offsetTop;
+};
+
+const syncTextInputToCurrentWord = (wordIndex = state.index) => {
   if (!state.words.length) return;
   if (document.activeElement === textInput && !state.playing) return;
 
-  const activeWordIndex = Math.min(state.index, state.words.length - 1);
+  const activeWordIndex = Math.min(Math.max(0, wordIndex), state.words.length - 1);
   const start = state.wordOffsets[activeWordIndex];
   const word = state.words[activeWordIndex];
   if (typeof start !== 'number' || !word) return;
 
   const end = start + word.length;
   textInput.setSelectionRange(start, end);
-
   const computedLineHeight = Number.parseFloat(getComputedStyle(textInput).lineHeight);
-  const fallbackLineHeight = textInput.scrollHeight / Math.max(1, state.sourceText.split('\n').length);
-  const lineHeight =
-    Number.isFinite(computedLineHeight) && computedLineHeight > 0
-      ? computedLineHeight
-      : fallbackLineHeight;
-  if (!Number.isFinite(lineHeight) || lineHeight <= 0) return;
-  const lineNumber = (state.sourceText.slice(0, start).match(/\n/g) || []).length;
-  const targetTop = Math.max(0, (lineNumber - 1) * lineHeight);
-  textInput.scrollTop = targetTop;
+  const lineHeight = Number.isFinite(computedLineHeight) && computedLineHeight > 0 ? computedLineHeight : 24;
+
+  const markerTop = getWordTopOffsetInTextarea(start);
+  const targetTop = Math.max(0, markerTop - textInput.clientHeight / 2 + lineHeight / 2);
+  const shouldUseSmooth = state.playing && 60000 / state.wpm >= 220;
+
+  textInput.scrollTo({
+    top: targetTop,
+    behavior: shouldUseSmooth ? 'smooth' : 'auto',
+  });
 };
 
 const clearTimer = () => {
@@ -101,8 +151,9 @@ const tick = () => {
     return;
   }
 
+  const currentWordIndex = state.index;
   updateDisplay();
-  syncTextInputToCurrentWord();
+  syncTextInputToCurrentWord(currentWordIndex);
   state.index += 1;
   updateStatus();
 
