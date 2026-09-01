@@ -3,6 +3,8 @@ const STORAGE_PROGRESS_KEY = 'simplersvp:lastProgress';
 
 const state = {
   words: [],
+  wordOffsets: [],
+  sourceText: '',
   index: 0,
   wpm: 350,
   playing: false,
@@ -31,12 +33,15 @@ const markdownToText = (text) =>
     .replace(/^#{1,6}\s*/gm, '')
     .replace(/[>*_~\-]{1,3}/g, ' ');
 
-const wordsFromText = (text) =>
-  text
-    .replace(/\s+/g, ' ')
-    .trim()
-    .split(' ')
-    .filter(Boolean);
+const parseText = (text) => {
+  const words = [];
+  const wordOffsets = [];
+  for (const match of text.matchAll(/\S+/g)) {
+    words.push(match[0]);
+    wordOffsets.push(match.index || 0);
+  }
+  return { words, wordOffsets };
+};
 
 const updateStatus = () => {
   statusCurrent.textContent = String(state.index);
@@ -48,6 +53,25 @@ const updateStatus = () => {
 
 const updateDisplay = () => {
   display.textContent = state.words[state.index] || 'Fertig';
+};
+
+const syncTextInputToCurrentWord = () => {
+  if (!state.words.length) return;
+  if (document.activeElement === textInput && !state.playing) return;
+
+  const activeWordIndex = Math.min(state.index, state.words.length - 1);
+  const start = state.wordOffsets[activeWordIndex];
+  const word = state.words[activeWordIndex];
+  if (typeof start !== 'number' || !word) return;
+
+  const end = start + word.length;
+  textInput.setSelectionRange(start, end);
+
+  const lineHeight = Number.parseFloat(getComputedStyle(textInput).lineHeight);
+  if (!Number.isFinite(lineHeight) || lineHeight <= 0) return;
+  const lineNumber = (state.sourceText.slice(0, start).match(/\n/g) || []).length;
+  const targetTop = Math.max(0, (lineNumber - 1) * lineHeight);
+  textInput.scrollTop = targetTop;
 };
 
 const clearTimer = () => {
@@ -73,6 +97,7 @@ const tick = () => {
   }
 
   updateDisplay();
+  syncTextInputToCurrentWord();
   state.index += 1;
   updateStatus();
 
@@ -102,14 +127,17 @@ const applyWpm = (value) => {
 };
 
 const loadText = (rawText) => {
-  const normalized = wordsFromText(rawText);
-  state.words = normalized;
+  const parsedText = parseText(rawText);
+  state.words = parsedText.words;
+  state.wordOffsets = parsedText.wordOffsets;
+  state.sourceText = rawText;
   state.index = 0;
   stop();
   updateDisplay();
   updateStatus();
+  syncTextInputToCurrentWord();
 
-  if (normalized.length) {
+  if (parsedText.words.length) {
     localStorage.setItem(STORAGE_TEXT_KEY, rawText);
   }
 };
@@ -122,6 +150,7 @@ const jumpToProgressIndex = (targetReadWords) => {
   state.index = clamped;
   updateDisplay();
   updateStatus();
+  syncTextInputToCurrentWord();
   if (wasPlaying && state.index < state.words.length) {
     play();
   }
